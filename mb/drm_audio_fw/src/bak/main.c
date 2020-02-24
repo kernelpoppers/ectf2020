@@ -169,7 +169,6 @@ int is_locked() {
         if (s.uid == s.song_md.owner_id) {
             locked = FALSE;
         } else {
-		//TODO could make this more efficient by checking uids differently?
             for (int i = 0; i < NUM_PROVISIONED_USERS && locked; i++) {
                 if (s.uid == s.song_md.uids[i]) {
                     locked = FALSE;
@@ -185,7 +184,6 @@ int is_locked() {
         locked = TRUE; // reset lock for region check
 
         // search for region match
-	// TODO This search also seems not the best
         for (int i = 0; i < s.song_md.num_regions; i++) {
             for (int j = 0; j < (u8)NUM_PROVISIONED_REGIONS; j++) {
                 if (PROVISIONED_RIDS[j] == s.song_md.rids[i]) {
@@ -250,16 +248,13 @@ void login() {
                     memset((void*)c->pin, 0, MAX_PIN_SZ);
                     return;
                 }
-           } 
-		
+            }
         }
 
         // reject login attempt
         mb_printf("User not found\r\n");
         memset((void*)c->username, 0, USERNAME_SZ);
         memset((void*)c->pin, 0, MAX_PIN_SZ);
-	memcpy(s.username, 0, USERNAME_SZ);
-	memcpy(s.pin, 0, MAX_PIN_SZ);
     }
 }
 
@@ -272,9 +267,6 @@ void logout() {
         c->login_status = 0;
         memset((void*)c->username, 0, USERNAME_SZ);
         memset((void*)c->pin, 0, MAX_PIN_SZ);
-	memcpy(s.username, 0, USERNAME_SZ);
-	memcpy(s.pin, 0, MAX_PIN_SZ);
-	//TODO is uid 0 a bad thing?
         s.uid = 0;
     } else {
         mb_printf("Not logged in\r\n");
@@ -288,11 +280,11 @@ void query_player() {
     c->query.num_users = NUM_PROVISIONED_USERS;
 
     for (int i = 0; i < NUM_PROVISIONED_REGIONS; i++) {
-        strncpy((char *)q_region_lookup(c->query, i), REGION_NAMES[PROVISIONED_RIDS[i]],REGION_NAME_SZ);
+        strcpy((char *)q_region_lookup(c->query, i), REGION_NAMES[PROVISIONED_RIDS[i]]);
     }
 
     for (int i = 0; i < NUM_PROVISIONED_USERS; i++) {
-        strncpy((char *)q_user_lookup(c->query, i), USERNAMES[i],USERNAME_SZ);
+        strcpy((char *)q_user_lookup(c->query, i), USERNAMES[i]);
     }
 
     mb_printf("Queried player (%d regions, %d users)\r\n", c->query.num_regions, c->query.num_users);
@@ -312,18 +304,18 @@ void query_song() {
 
     // copy owner name
     uid_to_username(s.song_md.owner_id, &name, FALSE);
-    strncpy((char *)c->query.owner, name,USERNAME_SZ);
+    strcpy((char *)c->query.owner, name);
 
     // copy region names
     for (int i = 0; i < s.song_md.num_regions; i++) {
         rid_to_region_name(s.song_md.rids[i], &name, FALSE);
-        strncpy((char *)q_region_lookup(c->query, i), name,REGION_NAME_SZ);
+        strcpy((char *)q_region_lookup(c->query, i), name);
     }
 
     // copy authorized uid names
     for (int i = 0; i < s.song_md.num_users; i++) {
         uid_to_username(s.song_md.uids[i], &name, FALSE);
-        strncpy((char *)q_user_lookup(c->query, i), name,USERNAME_SZ);
+        strcpy((char *)q_user_lookup(c->query, i), name);
     }
 
     mb_printf("Queried song (%d regions, %d users)\r\n", c->query.num_regions, c->query.num_users);
@@ -337,8 +329,6 @@ void share_song() {
 
     // reject non-owner attempts to share
     load_song_md();
-	//TODO look over this some may be able to share a song inapproperately
-	//I like the username to uid check we should probably add that to more places
     if (!s.logged_in) {
         mb_printf("No user is logged in. Cannot share song\r\n");
         c->song.wav_size = 0;
@@ -384,7 +374,6 @@ void play_song() {
     mb_printf("Song length = %dB", length);
 
     // truncate song if locked
-	// TODO may want to change this, having it based off of length could give false negatives
     if (length > PREVIEW_SZ && is_locked()) {
         length = PREVIEW_SZ;
         mb_printf("Song is locked.  Playing only %ds = %dB\r\n",
@@ -421,17 +410,7 @@ void play_song() {
                 mb_printf("Restarting song... \r\n");
                 rem = length; // reset song counter
                 set_playing();
-			//Not sure if I understand this but it appears that the 'rem' controls the current location
-			case FF:
-				mb_printf("Skipping Forward 5 sec");
-				rem-=5_SEC_SKIP;
-                set_playing();
-			case RW:
-				mb_printf("Skipping Backward 5 sec");
-				rem+=5_SEC_SKIP;
-                set_playing();
             default:
-				// TODO should we let this continue if it sees an unknown command
                 break;
             }
         }
@@ -469,7 +448,6 @@ void play_song() {
 
 
 // removes DRM data from song for digital out
-// but it never actually removes drm it just removes the metadata
 void digital_out() {
     // remove metadata size from file and chunk sizes
     c->song.file_size -= c->song.md.md_size;
@@ -491,7 +469,7 @@ void digital_out() {
 
 //////////////////////// MAIN ////////////////////////
 
-//looks good
+
 int main() {
     u32 status;
 
@@ -537,40 +515,33 @@ int main() {
             // c->cmd is set by the miPod player
             switch (c->cmd) {
             case LOGIN:
-				//looks fine
                 login();
                 break;
             case LOGOUT:
-				//looks fine
                 logout();
                 break;
             case QUERY_PLAYER:
-				//looks fine
                 query_player();
                 break;
             case QUERY_SONG:
-				//looks fine
                 query_song();
                 break;
             case SHARE:
-				//looks fine
                 share_song();
                 break;
             case PLAY:
-				//looks fine, except the end where it does some math, I have know idea what is going on there
                 play_song();
                 mb_printf("Done Playing Song\r\n");
                 break;
             case DIGITAL_OUT:
-				//I think it looks fine, but it still is not outputting a wav file
                 digital_out();
                 break;
             default:
                 break;
             }
 
-            // reset statuses and sleep to allow player to recognize WORKING state
-            strncpy((char *)c->username, s.username,USERNAME_SZ);
+            // reset statuses and sleep to allowe player to recognize WORKING state
+            strcpy((char *)c->username, s.username);
             c->login_status = s.logged_in;
             usleep(500);
             set_stopped();
