@@ -95,8 +95,8 @@ void print_playback_help() {
     mp_printf("  pause: pause the song\r\n");
     mp_printf("  resume: resume the paused song\r\n");
     mp_printf("  restart: restart the song\r\n");
-    mp_printf("  ff: fast forwards 5 seconds(unsupported)\r\n");
-    mp_printf("  rw: rewind 5 seconds (unsupported)\r\n");
+    mp_printf("  ff: fast forwards 5 seconds(supported)\r\n");
+    mp_printf("  rw: rewind 5 seconds (supported)\r\n");
     mp_printf("  help: display this message\r\n");
 }
 
@@ -342,14 +342,11 @@ int play_song(char *song_name) {
 	    while(c->drm_state!=STOPPED)continue;
             return -1;
         } else if (!strcmp(cmd, "rw")) {
-            mp_printf("Unsupported feature.\r\n\r\n");
-            print_playback_help();
+	    mp_printf("Skipping Backward 5 Sec");
+	    send_command(FF);
         } else if (!strcmp(cmd, "ff")) {
-            mp_printf("Unsupported feature.\r\n\r\n");
-            print_playback_help();
-    //   } else if (!strcmp(cmd, "lyrics")) {
-    //        mp_printf("Unsupported feature.\r\n\r\n");
-    //       print_playback_help();
+	    mp_printf("Skipping Forward 5 Sec");
+	    send_command(RW);
         } else {
             mp_printf("Unrecognized command.\r\n\r\n");
             print_playback_help();
