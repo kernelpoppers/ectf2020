@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# 2020 MITRE Collegiate eCTF Example Code
+# 2020 DSU Collegiate eCTF Code
 
 This repository contains an example reference system for MITRE's 2020 [Embedded System CTF](http://mitrecyberacademy.org/competitions/embedded/). 
 This code is incomplete, insecure, and does not meet MITRE standards for quality.
@@ -22,9 +21,3 @@ The example code is structured as follows
  * `Vagrantfile` - Vagrantfile for launching the Vagrant environment - DO NOT CHANGE
  * `sample-audio` - Sample audio files for you to use
 
-=======
-# ectf2020
-Public documents from MITRE eCTF 2020
->>>>>>> e4efbafd68fb7b5839e5687b90db3a48514dc4e7
-
-Most Up to Date version
