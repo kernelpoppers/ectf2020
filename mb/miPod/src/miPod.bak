@@ -1,27 +1,16 @@
-#ifndef SRC_CONSTANTS_H_
-#define SRC_CONSTANTS_H_
+/*
+ * miPod.h
+ *
+ *  Created on: Jan 9, 2020
+ *      Author: ectf
+ */
 
-#include "xil_printf.h"
+#ifndef SRC_MIPOD_H_
+#define SRC_MIPOD_H_
 
-// shared DDR address
-#define SHARED_DDR_BASE (0x20000000 + 0x1CC00000)
 
-// memory constants
-#define CHUNK_SZ 16000
-#define FIFO_CAP 4096*4
-
-// number of seconds to record/playback
-#define PREVIEW_TIME_SEC 30
-
-// ADC/DAC sampling rate in Hz
-#define AUDIO_SAMPLING_RATE 48000
-#define BYTES_PER_SAMP 2
-#define PREVIEW_SZ (PREVIEW_TIME_SEC * AUDIO_SAMPLING_RATE * BYTES_PER_SAMP)
-#define FIVE_SEC_SKIP (5*AUDIO_SAMPLING_RATE*BYTES_PER_SAMP)
-
-// printing utility
-#define MB_PROMPT "\r\nMB> "
-#define mb_printf(...) xil_printf(MB_PROMPT __VA_ARGS__)
+// miPod constants
+#define USR_CMD_SZ 64
 
 // protocol constants
 #define MAX_REGIONS 64
@@ -31,14 +20,13 @@
 #define MAX_PIN_SZ 64
 #define MAX_SONG_SZ (1<<25)
 
+// printing utility
+#define MP_PROMPT "mP> "
+#define mp_printf(...) printf(MP_PROMPT __VA_ARGS__)
 
-// LED colors and controller
-struct color {
-    u32 r;
-    u32 g;
-    u32 b;
-};
-
+#define USER_PROMPT "miPod %s# "
+#define print_prompt() printf(USER_PROMPT, "")
+#define print_prompt_msg(...) printf(USER_PROMPT, __VA_ARGS__)
 
 // struct to interpret shared buffer as a query
 typedef struct {
@@ -68,9 +56,9 @@ typedef struct __attribute__((__packed__)) {
 // packing values skip over non-relevant WAV metadata
 typedef struct __attribute__((__packed__)) {
     char packing1[4];
-    u32 file_size;
+    int file_size;
     char packing2[32];
-    u32 wav_size;
+    int wav_size;
     drm_md md;
 } song;
 
@@ -98,29 +86,8 @@ typedef volatile struct __attribute__((__packed__)) {
     union {
         song song;
         query query;
+        char buf[MAX_SONG_SZ]; // sets correct size of cmd_channel for allocation
     };
 } cmd_channel;
 
-
-// local store for drm metadata
-typedef struct {
-    u8 md_size;
-    u8 owner_id;
-    u8 num_regions;
-    u8 rids[MAX_REGIONS];
-    u8 num_users;
-    u8 uids[MAX_USERS];
-} song_md;
-
-
-// store of internal state
-typedef struct {
-    char logged_in;             // whether or not a user is logged on
-    u8 uid;                     // logged on user id
-    char username[USERNAME_SZ]; // logged on username
-    char pin[MAX_PIN_SZ];       // logged on pin
-    song_md song_md;            // current song metadata
-} internal_state;
-
-
-#endif /* SRC_CONSTANTS_H_ */
+#endif /* SRC_MIPOD_H_ */

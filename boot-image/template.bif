@@ -1,5 +1,5 @@
 the_ROM_image:
 {
-  [bootloader]/ectf/boot-image/stock-fsbl.elf
-  BITSTREAM_GOES_HERE
+  [bootloader]/home/vagrant/Desktop/ectf2020/boot-image/stock-fsbl.elf
+  /home/vagrant/Desktop/ectf2020/tools/device1/download.bit
 }
