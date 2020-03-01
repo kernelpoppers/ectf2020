@@ -424,11 +424,11 @@ void play_song() {
 			//Not sure if I understand this but it appears that the 'rem' controls the current location
 			case FF:
 				mb_printf("Skipping Forward 5 sec");
-				rem-=5_SEC_SKIP;
+				rem-=SKIP_5_SEC;
                 set_playing();
 			case RW:
 				mb_printf("Skipping Backward 5 sec");
-				rem+=5_SEC_SKIP;
+				rem+=SKIP_5_SEC;
                 set_playing();
             default:
 				// TODO should we let this continue if it sees an unknown command
