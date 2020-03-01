@@ -245,6 +245,7 @@ void share_song(char *song_name, char *username) {
     if (!username || !song_name) {
         mp_printf("Need song name and username\r\n");
         print_help();
+	return;
     }
 
     // load the song into the shared buffer
