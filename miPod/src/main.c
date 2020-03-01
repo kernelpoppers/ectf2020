@@ -343,10 +343,10 @@ int play_song(char *song_name) {
             return -1;
         } else if (!strcmp(cmd, "rw")) {
 	    mp_printf("Skipping Backward 5 Sec");
-	    send_command(FF);
+	    send_command(RW);
         } else if (!strcmp(cmd, "ff")) {
 	    mp_printf("Skipping Forward 5 Sec");
-	    send_command(RW);
+	    send_command(FF);
         } else {
             mp_printf("Unrecognized command.\r\n\r\n");
             print_playback_help();

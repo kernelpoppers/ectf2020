@@ -426,10 +426,12 @@ void play_song() {
 				mb_printf("Skipping Forward 5 sec");
 				rem -= FIVE_SEC_SKIP;
                 set_playing();
+				break;
 			case RW:
 				mb_printf("Skipping Backward 5 sec");
 				rem += FIVE_SEC_SKIP;
                 set_playing();
+				break;
             default:
 				// TODO should we let this continue if it sees an unknown command
                 break;
