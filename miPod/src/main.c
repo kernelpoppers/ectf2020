@@ -107,6 +107,10 @@ size_t load_file(char *fname, char *song_buf) {
     int fd;
     struct stat sb;
 	int length;
+	if(fname == 0){
+		print_help();
+		return 0;
+	}
 
 	if(strlen(fname) > 64){
 		puts("Song name is too long");
@@ -373,7 +377,7 @@ void digital_out(char *song_name) {
     while (c->drm_state == WORKING) continue; // wait for DRM to dump file
 
     strncpy(fname,song_name, 64);
-    strcpy(fname, strcat(fname, ".dout"));
+    strcat(fname, ".dout");
 
     // open digital output file
     int written = 0, wrote, length = c->song.file_size + 8;
