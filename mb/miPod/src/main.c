@@ -95,8 +95,8 @@ void print_playback_help() {
     mp_printf("  pause: pause the song\r\n");
     mp_printf("  resume: resume the paused song\r\n");
     mp_printf("  restart: restart the song\r\n");
-    mp_printf("  ff: fast forwards 5 seconds(unsupported)\r\n");
-    mp_printf("  rw: rewind 5 seconds (unsupported)\r\n");
+    mp_printf("  ff: fast forwards 5 seconds(supported)\r\n");
+    mp_printf("  rw: rewind 5 seconds (supported)\r\n");
     mp_printf("  help: display this message\r\n");
 }
 
@@ -107,6 +107,10 @@ size_t load_file(char *fname, char *song_buf) {
     int fd;
     struct stat sb;
 	int length;
+	if(fname == 0){
+		print_help();
+		return 0;
+	}
 
 	if(strlen(fname) > 64){
 		puts("Song name is too long");
@@ -241,6 +245,7 @@ void share_song(char *song_name, char *username) {
     if (!username || !song_name) {
         mp_printf("Need song name and username\r\n");
         print_help();
+	return;
     }
 
     // load the song into the shared buffer
@@ -338,14 +343,11 @@ int play_song(char *song_name) {
 	    while(c->drm_state!=STOPPED)continue;
             return -1;
         } else if (!strcmp(cmd, "rw")) {
-            mp_printf("Unsupported feature.\r\n\r\n");
-            print_playback_help();
+	    mp_printf("Skipping Backward 5 Sec");
+	    send_command(RW);
         } else if (!strcmp(cmd, "ff")) {
-            mp_printf("Unsupported feature.\r\n\r\n");
-            print_playback_help();
-    //   } else if (!strcmp(cmd, "lyrics")) {
-    //        mp_printf("Unsupported feature.\r\n\r\n");
-    //       print_playback_help();
+	    mp_printf("Skipping Forward 5 Sec");
+	    send_command(FF);
         } else {
             mp_printf("Unrecognized command.\r\n\r\n");
             print_playback_help();
@@ -373,7 +375,7 @@ void digital_out(char *song_name) {
     while (c->drm_state == WORKING) continue; // wait for DRM to dump file
 
     strncpy(fname,song_name, 64);
-    strcpy(fname, strcat(fname, ".dout"));
+    strcat(fname, ".dout");
 
     // open digital output file
     int written = 0, wrote, length = c->song.file_size + 8;
